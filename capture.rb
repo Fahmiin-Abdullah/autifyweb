@@ -7,20 +7,25 @@ class Autifyweb
   def initialize(url, with_metadata = false)
     @url = url
     @with_metadata = with_metadata
+    @dir = generate_dir_name
   end
 
   def parse
     check_url
 
+    Dir.mkdir(@dir) if (! File.exist? @dir)
     source = Net::HTTP.get(@url)
     contents = Nokogiri::HTML(source)
-    path = File.basename(@url.to_s)
-    path += '.html' if path !~ /\.((html?)|(txt))$/
 
-    File.open(path, 'w') { |f| f.write(contents.to_html) }
+    html_path = File.join(@dir, File.basename(@url.to_s))
+    html_path += '.html' if html_path !~ /\.((html?)|(txt))$/
+    meta_path = File.join(@dir, 'metadata')
+
+    File.open(html_path, 'w') { |f| f.write(contents.to_html) }
+    File.open(meta_path, 'w') { |f| f.write(fetch_metadata(contents)) }
     return unless @with_metadata
 
-    print_metadata(contents)
+    puts File.read(meta_path)
   end
 
   def check_url
@@ -35,14 +40,17 @@ class Autifyweb
     end
   end
 
-  def print_metadata(contents)
+  def generate_dir_name
+    host = @url.host.downcase
+    host = host[4..-1] if host.start_with?('www.')
+    host.split('.')[0]
+  end
+
+  def fetch_metadata(contents)
     links_count = contents.xpath('//a[@href]').count
     images_count = contents.xpath('//img[@src]').count
 
-    p "Site name: #{@url}"
-    p "Number of links: #{links_count}"
-    p "Number of images: #{images_count}"
-    p "Last fetched: #{DateTime.now.strftime('%m/%d/%Y %I:%M %p')}"
+    "Site name: #{@url}#{$/}Number of links: #{links_count}#{$/}Number of images: #{images_count}#{$/}Last fetched: #{DateTime.now.strftime('%m/%d/%Y %I:%M %p')}"
   end
 end
 
