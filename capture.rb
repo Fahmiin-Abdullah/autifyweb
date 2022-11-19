@@ -1,3 +1,4 @@
+require 'date'
 require 'net/http'
 require 'nokogiri'
 require 'optparse'
@@ -36,8 +37,12 @@ class Autifyweb
 
   def print_metadata(contents)
     links_count = contents.xpath('//a[@href]').count
+    images_count = contents.xpath('//img[@src]').count
 
+    p "Site name: #{@url}"
     p "Number of links: #{links_count}"
+    p "Number of images: #{images_count}"
+    p "Last fetched: #{DateTime.now.strftime('%m/%d/%Y %I:%M %p')}"
   end
 end
 
