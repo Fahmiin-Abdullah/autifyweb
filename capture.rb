@@ -58,18 +58,19 @@ class Autifyweb
 end
 
 OptionParser.new do |parser|
-  parser.banner = "Usage: capture.rb [options]"
+  parser.banner = "Usage: capture.rb [flag] [url_1] [url_2]"
 
-  parser.on("-m", "--metadata", "Fetch the metadata") do
+  parser.on("-m", "--metadata", "Print out the metadatas of saved webpages") do
     @metadata_flag = true
   end
 
   parser.on("-h", "--help", "Show this help message") do
+    @help_open = true
     puts parser
   end
 end.parse!
 
-if __FILE__ == $0
+if __FILE__ == $0 && !@help_open
   if ARGV.count < 1
     $stderr.puts 'Please enter at least 1 URL link or directory name'
     exit 1
