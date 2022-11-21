@@ -8,6 +8,7 @@ WORKDIR /assignments
 COPY . .
 
 RUN gem install bundler:2.3.20
-RUN bundle
+ADD Gemfile Gemfile.lock .
+RUN bundle install
 
-CMD ["ruby", "capture.rb"]
+ENTRYPOINT ["bundle", "exec", "ruby", "capture.rb"]
